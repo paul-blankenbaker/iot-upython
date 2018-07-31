@@ -35,9 +35,27 @@ Enable WebREPL for remote access.
 * Download at: <https://github.com/micropython/webrepl>
 
 Putty works well on Linux and Windows for accessing via USB/serial
-interface (speed 115200).
+interface (speed 115200). Screen also works well on Linux system (as
+long as you remember that is is <Control-A> <k> to exit).
 
-To remotely reboot the ESP8266 using WebREPL:
+    screen /dev/ttyUSB0 115200
+
+To reboot the ESP8266 using WebREPL or REPL command line:
 
     import machine
     machine.reset()
+
+To configure Station mode (connect to AP mode):
+
+    import network
+    sta = network.WLAN(network.STA_IF)
+    sta.active(True)
+    sta.config(dhcp_hostname='esp32-garage')
+    sta.connect('ESSID', 'YOUR_AP_PASSPHRASE')
+
+To configure Access Point (AP mode):
+
+    import network
+    ap = network.WLAN(network.AP_IF)
+    ap.active(True)
+    ap.config(essid='esp32-garage', authmode=network.AUTH_WPA2_PSK, password='YOUR_WPA_PASSPHRASE')

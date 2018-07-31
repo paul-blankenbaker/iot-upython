@@ -7,8 +7,17 @@ import socket
 import time
 import utime
 
-# Output pin on that drives relay controlling the garage door
-door = machine.Pin(5, machine.Pin.OUT, value=True);
+# BEGIN CONFIGURATION SECTION (YOU MAY NEED TO ADJUST THESE VALUES)
+
+# What output pin on your board is tied to the relay
+# doorPin = 33 # On ESP32 board
+doorPin = 5
+
+# Logical value to set on pin in order to "press" the garage door button
+buttonPressed = False
+
+# Number of seconds to hold button in "pressed" state
+buttonPressTime = 0.1
 
 # Set to True for debugging output in REPL
 debug = False
@@ -16,13 +25,22 @@ debug = False
 # Set to False to disable automatic start of web server
 autoStart = True
 
+# END OF CONFIGURATION SECTION
+
+# Output pin on that drives relay controlling the garage door
+buttonReleased = not buttonPressed
+door = machine.Pin(doorPin, machine.Pin.OUT, value=buttonReleased)
+
 # Helper function to "press" the garage door button for a fraction
 # of a second
 def toggleDoor():
     global door
-    door.value(False)
-    time.sleep(0.1)
-    door.value(True)
+    global buttonPressed
+    global buttonReleased
+    global buttonPressTime
+    door.value(buttonPressed)
+    time.sleep(buttonPressTime)
+    door.value(buttonReleased)
 
 # HTML document to send back to clients
 html = """<!DOCTYPE html>
