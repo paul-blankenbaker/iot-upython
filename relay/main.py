@@ -42,8 +42,15 @@ def toggleDoor():
     time.sleep(buttonPressTime)
     door.value(buttonReleased)
 
+# HTTPD Header to send back (NOTE: Safari
+# really wants to see HTTP/1.1 in the response
+# header otherwise it will disable JavaScript
+# and the button won't be usable)
+httpdHeaderCommon = "HTTP/1.1 200 OK\r\n"
+httpdHeaderHtml = "Content-Type: text/html\r\n\r\n"
+
 # HTML document to send back to clients
-html = """<!DOCTYPE html>
+html = httpdHeaderCommon + httpdHeaderHtml + """<!DOCTYPE html>
 <html>
   <head>
     <title>Garage Door</title>
