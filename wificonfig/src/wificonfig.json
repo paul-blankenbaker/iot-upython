@@ -1,0 +1,9 @@
+{
+    "enableAp": true,
+    "ssidAp": "wificonfig",
+    "pskAp": "",
+    "enableSta": false,
+    "ssidSta": "",
+    "pskSta": "",
+    "nameSta": ""
+}

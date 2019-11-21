@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8" /><title>ESP32 WIFI Config</title></head>
+<style>
+body {font-family: sans-serif;}
+th {padding-left: 0.5em; padding-right: 0.5em; font-weight: bold; text-align: left;}
+th.heading {font-size: 125%; padding-left: 0.0em; color: darkblue;}
+div.heading, button.heading {margin-top: 1.0em;}
+table {margin: 1em;}
+button {margin: 0.5em;}
+</style>
+
+<body>
+<table><tbody>
+<tr><th colspan="2" class="heading"><div class="heading">Server (AP Mode)</div></th></tr>
+<tr><th>Enable</th><td><input id="enableAp" type="checkbox"></td></tr>   
+<tr><th>SSID</th><td><input id="ssidAp" value="wificonfig"></td></tr>   
+<tr><th>PSK</th><td><input id="pskAp" value=""></td></tr>   
+<tr><th colspan="2" class="heading"><div class="heading">Client (Station Mode)</div></th></tr>
+<tr><th>Enable</th><td><input id="enableSta" type="checkbox"></td></tr>   
+<tr><th>SSID</th><td><input id="ssidSta" value=""></td></tr>   
+<tr><th>PSK</th><td><input id="pskSta" value=""></td></tr>
+<tr><td colspan="2"><button class="heading" id="apply" onclick="apply()">Apply and Reboot</button></td></tr>   
+</tbody></table>
+
+<script>
+//<![CDATA[
+let url = "wificonfig.json";
+
+function loadActiveConfig(data) {
+    for (let key in data) {
+        e = document.getElementById(key);
+        if (e) {
+            if ("checkbox" === e.type) {
+              e.checked = data[key];
+            } else {
+              e.value = data[key];
+            }
+        }
+    }
+    document.getElementById("apply").disabled = false;
+}
+
+function loadConfig() {
+fetch(url)
+.then((resp) => resp.json())
+.then(loadActiveConfig)
+.catch(function(err) {
+    const msg = "Failed to get WIFI JSON config: " + url;
+    console.log(msg);
+    console.log(err);
+    alert(msg);
+});
+}
+loadConfig();
+
+function apply() {
+    document.getElementById("apply").disabled = true;
+    const settings = { };
+    const keyPrefixes = [ "enable", "ssid", "psk"];
+    const keyPostfixes = [ "Ap", "Sta" ]; 
+    for (let i in keyPrefixes) {
+        for (let j in keyPostfixes) {
+            let key = keyPrefixes[i] + keyPostfixes[j];
+            let e = document.getElementById(key);
+            if (e.type === "checkbox") {
+                settings[key] = e.checked ? true : false;
+            } else {
+                settings[key] = e.value;
+            }
+        }
+    }
+    let jsonStr = JSON.stringify(settings);
+
+    fetch(url, {
+    method: 'POST',
+    mode: 'cors', // no-cors, *cors, same-origin
+    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+    //credentials: 'same-origin',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    redirect: 'follow',
+    referrer: 'no-referrer',
+    body: jsonStr
+  }).then((resp) => resp.json())
+.then(loadActiveConfig)
+.catch(function(err) {
+    const msg = "Failed to set WIFI JSON config: " + url;
+    console.log(msg);
+    console.log(err);
+});
+}
+//]]>
+</script>
+</body>
+</html>
